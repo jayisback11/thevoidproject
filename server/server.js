@@ -9,10 +9,10 @@ app.use(cors());
 const server = http.createServer(app);
 
 const io = new Server(server, {
-    cors: {
-        origin: "http://localhost:3000", // The URL of your React app
-        methods: ["GET", "POST"],
-    },
+  cors: {
+    origin: "https://the-void-chat.vercel.app", // Your NEW Vercel URL
+    methods: ["GET", "POST"],
+  },
 });
 
 io.on("connection", (socket) => {
