@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 
-const socket = io('https://thevoidbackend.onrender.com');
+const socket = io('https://thevoidproject.onrender.com');
 
 function App() {
   const [availableNames, setAvailableNames] = useState([]);
