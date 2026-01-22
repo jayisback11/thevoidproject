@@ -10,7 +10,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "https://the-void-chat.vercel.app", // Your NEW Vercel URL
+    origin: "https://thevoidproject.vercel.app", // Your NEW Vercel URL
     methods: ["GET", "POST"],
   },
 });
