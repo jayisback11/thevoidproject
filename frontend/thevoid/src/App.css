@@ -36,3 +36,32 @@
     transform: rotate(360deg);
   }
 }
+
+.toast {
+  visibility: hidden; /* Hidden by default */
+  min-width: 250px;
+  background-color: #1a1a1a; /* Dark void theme */
+  color: #fff;
+  text-align: center;
+  border-radius: 8px;
+  padding: 16px;
+  position: fixed;
+  z-index: 1000;
+  left: 50%;
+  bottom: 30px;
+  transform: translateX(-50%);
+  border: 1px solid #333;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  font-family: sans-serif;
+  transition:
+    opacity 0.3s,
+    bottom 0.3s;
+  opacity: 0;
+}
+
+/* 2. The 'Show' Class (triggered by JS) */
+.toast.show {
+  visibility: visible;
+  opacity: 1;
+  bottom: 50px; /* Moves up slightly when appearing */
+}

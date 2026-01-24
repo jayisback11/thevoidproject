@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
+import "./App.css";
 
 const isLocal = process.env.NODE_ENV !== 'production';
 var socket = "";
@@ -79,10 +80,20 @@ function App() {
 
   const copyLink = () => {
     navigator.clipboard.writeText(window.location.href);
-    alert("Invite link copied to clipboard!");
   };
 
+  function showNotification(message) {
+    const toast = document.getElementById("notification-toast");
+    const msgSpan = document.getElementById("toast-message");
 
+    msgSpan.innerText = message;
+    toast.className = "toast show";
+
+    // Hide after 3 seconds
+    setTimeout(() => {
+      toast.className = toast.className.replace("show", "");
+    }, 3000);
+  }
 
   if (!joined) {
     return (
@@ -115,9 +126,7 @@ function App() {
     );
   }
 
-
   return (
-
     <div style={styles.chatWrapper}>
       <div style={styles.usersBar}>
         <span style={styles.usersTitle}>ONLINE</span>
@@ -133,9 +142,12 @@ function App() {
           </span>
         ))}
       </div>
+      <div id="notification-toast" class="toast">
+        <span id="toast-message"></span>
+      </div>
       <div style={styles.header}>
         <small>ROOM: {room}</small>
-        <button onClick={copyLink} style={styles.copyBtn}>Copy Invite Link</button>
+        <button onClick={() => showNotification('Copied Invite Link')} style={styles.copyBtn}>Copy Invite Link</button>
       </div>
       <div style={styles.chatBox}>
         {chatLog.map((msg, i) => (
@@ -167,17 +179,17 @@ const styles = {
   input: { padding: '15px', width: '250px', backgroundColor: '#111', border: '1px solid #333', color: '#fff', marginBottom: '10px', textAlign: 'center' },
   enterBtn: { padding: '15px 50px', backgroundColor: '#fff', color: '#000', border: 'none', cursor: 'pointer', fontWeight: 'bold' },
   chatWrapper: { height: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: '#000', color: '#fff', fontFamily: 'monospace' },
-  header: { padding: '10px', borderBottom: '1px solid #222', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
-  copyBtn: { background: 'none', color: '#888', border: '1px solid #444', cursor: 'pointer', padding: '5px' },
+  header: { fontSize: '20px', padding: '10px', borderBottom: '1px solid #222', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
+  copyBtn: { fontSize: '20px', background: 'none', color: '#888', border: '1px solid #444', cursor: 'pointer', padding: '5px' },
   chatBox: { flex: 1, overflowY: 'auto', padding: '20px' },
   myMsg: { marginLeft: 'auto', maxWidth: '70%', textAlign: 'right', marginBottom: '20px' },
   theirMsg: { marginRight: 'auto', maxWidth: '70%', textAlign: 'left', marginBottom: '20px' },
-  msgUser: { fontSize: '10px', color: '#666', display: 'block' },
-  msgText: { margin: '5px 0', fontSize: '16px' },
-  msgTime: { fontSize: '9px', color: '#444' },
+  msgUser: { fontSize: '20px', color: '#666', display: 'block' },
+  msgText: { margin: '5px 0', fontSize: '26px' },
+  msgTime: { fontSize: '19px', color: '#444' },
   inputArea: { display: 'flex', borderTop: '1px solid #222' },
-  chatInput: { flex: 1, padding: '20px', backgroundColor: '#000', color: '#fff', border: 'none', outline: 'none' },
-  sendBtn: { padding: '0 30px', backgroundColor: '#fff', border: 'none', cursor: 'pointer' },
+  chatInput: { fontSize: '19px', flex: 1, padding: '20px', backgroundColor: '#000', color: '#fff', border: 'none', outline: 'none' },
+  sendBtn: { fontSize: '19px', padding: '0 30px', backgroundColor: '#fff', border: 'none', cursor: 'pointer' },
   usersBar: {
     padding: '10px',
     borderBottom: '1px solid #222',
@@ -186,15 +198,17 @@ const styles = {
     flexWrap: 'wrap'
   },
   usersTitle: {
-    fontSize: '10px',
+    fontSize: '20px',
     color: '#666',
     marginRight: '10px'
   },
   userBadge: {
     padding: '3px 8px',
-    fontSize: '11px',
+    fontSize: '21px',
     color: '#aaa'
   }
 };
+
+
 
 export default App;
