@@ -78,10 +78,6 @@ function App() {
     }
   };
 
-  const copyLink = () => {
-    navigator.clipboard.writeText(window.location.href);
-  };
-
   function showNotification(message) {
     const toast = document.getElementById("notification-toast");
     const msgSpan = document.getElementById("toast-message");
