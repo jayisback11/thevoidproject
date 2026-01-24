@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 
-const socket = io('https://thevoidproject.onrender.com');
+// const socket = io('https://thevoidproject.onrender.com');
+const socket = io('http://localhost:4000');
 
 function App() {
+  const [users, setUsers] = useState([]);
   const [availableNames, setAvailableNames] = useState([]);
   const [username, setUsername] = useState('');
   const [room, setRoom] = useState('');
@@ -11,6 +13,19 @@ function App() {
   const [chatLog, setChatLog] = useState([]);
   const [joined, setJoined] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+  // existing code...
+
+  socket.on('room_users', (userList) => {
+    setUsers(userList);
+  });
+
+  return () => {
+    socket.off('receive_message');
+    socket.off('room_users');
+  };
+  }, []);
 
   useEffect(() => {
     // Fetch 5 random usernames
@@ -61,6 +76,8 @@ function App() {
     alert("Invite link copied to clipboard!");
   };
 
+  
+
   if (!joined) {
     return (
       <div style={styles.setupScreen}>
@@ -92,8 +109,24 @@ function App() {
     );
   }
 
+  
   return (
+    
     <div style={styles.chatWrapper}>
+    <div style={styles.usersBar}>
+  <span style={styles.usersTitle}>ONLINE</span>
+  {users.map((u) => (
+    <span
+      key={u}
+      style={{
+        ...styles.userBadge,
+        border: u === username ? '1px solid #fff' : '1px solid #333'
+      }}
+    >
+      {u}
+    </span>
+  ))}
+    </div>
       <div style={styles.header}>
         <small>ROOM: {room}</small>
         <button onClick={copyLink} style={styles.copyBtn}>Copy Invite Link</button>
@@ -138,7 +171,24 @@ const styles = {
   msgTime: { fontSize: '9px', color: '#444' },
   inputArea: { display: 'flex', borderTop: '1px solid #222' },
   chatInput: { flex: 1, padding: '20px', backgroundColor: '#000', color: '#fff', border: 'none', outline: 'none' },
-  sendBtn: { padding: '0 30px', backgroundColor: '#fff', border: 'none', cursor: 'pointer' }
+  sendBtn: { padding: '0 30px', backgroundColor: '#fff', border: 'none', cursor: 'pointer' },
+  usersBar: {
+  padding: '10px',
+  borderBottom: '1px solid #222',
+  display: 'flex',
+  gap: '8px',
+  flexWrap: 'wrap'
+},
+usersTitle: {
+  fontSize: '10px',
+  color: '#666',
+  marginRight: '10px'
+},
+userBadge: {
+  padding: '3px 8px',
+  fontSize: '11px',
+  color: '#aaa'
+}
 };
 
 export default App;

@@ -10,7 +10,10 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "https://thevoidproject.vercel.app", // Your NEW Vercel URL
+    // origin: "https://thevoidproject.vercel.app", // Your NEW Vercel URL
+     origin: "http://localhost:3000", // Your NEW Vercel URL
+    
+    
     methods: ["GET", "POST"],
   },
 });
@@ -33,6 +36,33 @@ io.on("connection", (socket) => {
     socket.on("disconnect", () => {
         console.log("User Disconnected", socket.id);
     });
+});
+
+
+const rooms = {};  //show current users in room
+
+io.on('connection', (socket) => {
+  socket.on('join_room', ({ username, room }) => {
+    socket.join(room);
+
+    if (!rooms[room]) rooms[room] = [];
+    rooms[room].push({ id: socket.id, username });
+
+    io.to(room).emit(
+      'room_users',
+      rooms[room].map(u => u.username)
+    );
+  });
+
+  socket.on('disconnect', () => {
+    for (const room in rooms) {
+      rooms[room] = rooms[room].filter(u => u.id !== socket.id);
+      io.to(room).emit(
+        'room_users',
+        rooms[room].map(u => u.username)
+      );
+    }
+  });
 });
 
 const PORT = process.env.PORT || 4000;
