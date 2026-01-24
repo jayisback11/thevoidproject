@@ -8,14 +8,22 @@ app.use(cors());
 
 const server = http.createServer(app);
 
+const isLocal = process.env.NODE_ENV !== 'production';
+var origin = "";
+
+if (isLocal) {
+    origin = "http://localhost:3000";
+    console.log("Running on my machine 💻");
+} else {
+    origin = "https://thevoidproject.vercel.app";
+    console.log("Running on the live server 🚀");
+}
+
 const io = new Server(server, {
-  cors: {
-    // origin: "https://thevoidproject.vercel.app", // Your NEW Vercel URL
-     origin: "http://localhost:3000", // Your NEW Vercel URL
-    
-    
-    methods: ["GET", "POST"],
-  },
+    cors: {
+        origin: origin, 
+        methods: ["GET", "POST"],
+    },
 });
 
 io.on("connection", (socket) => {
@@ -42,27 +50,27 @@ io.on("connection", (socket) => {
 const rooms = {};  //show current users in room
 
 io.on('connection', (socket) => {
-  socket.on('join_room', ({ username, room }) => {
-    socket.join(room);
+    socket.on('join_room', ({ username, room }) => {
+        socket.join(room);
 
-    if (!rooms[room]) rooms[room] = [];
-    rooms[room].push({ id: socket.id, username });
+        if (!rooms[room]) rooms[room] = [];
+        rooms[room].push({ id: socket.id, username });
 
-    io.to(room).emit(
-      'room_users',
-      rooms[room].map(u => u.username)
-    );
-  });
+        io.to(room).emit(
+            'room_users',
+            rooms[room].map(u => u.username)
+        );
+    });
 
-  socket.on('disconnect', () => {
-    for (const room in rooms) {
-      rooms[room] = rooms[room].filter(u => u.id !== socket.id);
-      io.to(room).emit(
-        'room_users',
-        rooms[room].map(u => u.username)
-      );
-    }
-  });
+    socket.on('disconnect', () => {
+        for (const room in rooms) {
+            rooms[room] = rooms[room].filter(u => u.id !== socket.id);
+            io.to(room).emit(
+                'room_users',
+                rooms[room].map(u => u.username)
+            );
+        }
+    });
 });
 
 const PORT = process.env.PORT || 4000;

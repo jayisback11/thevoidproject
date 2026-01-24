@@ -1,8 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 
-// const socket = io('https://thevoidproject.onrender.com');
-const socket = io('http://localhost:4000');
+const isLocal = process.env.NODE_ENV !== 'production';
+var socket = "";
+
+if (isLocal) {
+  socket = io('http://localhost:4000');
+} else {
+  socket = io('https://thevoidproject.onrender.com');
+}
 
 function App() {
   const [users, setUsers] = useState([]);
@@ -15,16 +21,16 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-  // existing code...
+    // existing code...
 
-  socket.on('room_users', (userList) => {
-    setUsers(userList);
-  });
+    socket.on('room_users', (userList) => {
+      setUsers(userList);
+    });
 
-  return () => {
-    socket.off('receive_message');
-    socket.off('room_users');
-  };
+    return () => {
+      socket.off('receive_message');
+      socket.off('room_users');
+    };
   }, []);
 
   useEffect(() => {
@@ -64,7 +70,7 @@ function App() {
   const sendMessage = (e) => {
     e.preventDefault();
     if (message.trim()) {
-      const data = { room, user: username, text: message, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) };
+      const data = { room, user: username, text: message, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) };
       socket.emit('send_message', data);
       setChatLog((prev) => [...prev, data]);
       setMessage('');
@@ -76,21 +82,21 @@ function App() {
     alert("Invite link copied to clipboard!");
   };
 
-  
+
 
   if (!joined) {
     return (
       <div style={styles.setupScreen}>
         <h1 style={styles.title}>THE VOID</h1>
         <p>Choose an identity to enter the silence.</p>
-        
+
         {loading ? <p>Loading names...</p> : (
           <div style={styles.nameGrid}>
             {availableNames.map(name => (
-              <button 
-                key={name} 
+              <button
+                key={name}
                 onClick={() => setUsername(name)}
-                style={{...styles.nameBtn, border: username === name ? '1px solid #fff' : '1px solid #333', color: username === name ? '#fff' : '#888'}}
+                style={{ ...styles.nameBtn, border: username === name ? '1px solid #fff' : '1px solid #333', color: username === name ? '#fff' : '#888' }}
               >
                 {name}
               </button>
@@ -98,35 +104,35 @@ function App() {
           </div>
         )}
 
-        <input 
-          style={styles.input} 
-          placeholder="Room Name" 
-          value={room} 
-          onChange={(e) => setRoom(e.target.value)} 
+        <input
+          style={styles.input}
+          placeholder="Room Name"
+          value={room}
+          onChange={(e) => setRoom(e.target.value)}
         />
         <button onClick={joinRoom} style={styles.enterBtn} disabled={!username || !room}>ENTER</button>
       </div>
     );
   }
 
-  
+
   return (
-    
+
     <div style={styles.chatWrapper}>
-    <div style={styles.usersBar}>
-  <span style={styles.usersTitle}>ONLINE</span>
-  {users.map((u) => (
-    <span
-      key={u}
-      style={{
-        ...styles.userBadge,
-        border: u === username ? '1px solid #fff' : '1px solid #333'
-      }}
-    >
-      {u}
-    </span>
-  ))}
-    </div>
+      <div style={styles.usersBar}>
+        <span style={styles.usersTitle}>ONLINE</span>
+        {users.map((u) => (
+          <span
+            key={u}
+            style={{
+              ...styles.userBadge,
+              border: u === username ? '1px solid #fff' : '1px solid #333'
+            }}
+          >
+            {u}
+          </span>
+        ))}
+      </div>
       <div style={styles.header}>
         <small>ROOM: {room}</small>
         <button onClick={copyLink} style={styles.copyBtn}>Copy Invite Link</button>
@@ -141,11 +147,11 @@ function App() {
         ))}
       </div>
       <form onSubmit={sendMessage} style={styles.inputArea}>
-        <input 
-          style={styles.chatInput} 
-          value={message} 
-          onChange={(e) => setMessage(e.target.value)} 
-          placeholder="Type into the void..." 
+        <input
+          style={styles.chatInput}
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          placeholder="Type into the void..."
         />
         <button type="submit" style={styles.sendBtn}>SEND</button>
       </form>
@@ -173,22 +179,22 @@ const styles = {
   chatInput: { flex: 1, padding: '20px', backgroundColor: '#000', color: '#fff', border: 'none', outline: 'none' },
   sendBtn: { padding: '0 30px', backgroundColor: '#fff', border: 'none', cursor: 'pointer' },
   usersBar: {
-  padding: '10px',
-  borderBottom: '1px solid #222',
-  display: 'flex',
-  gap: '8px',
-  flexWrap: 'wrap'
-},
-usersTitle: {
-  fontSize: '10px',
-  color: '#666',
-  marginRight: '10px'
-},
-userBadge: {
-  padding: '3px 8px',
-  fontSize: '11px',
-  color: '#aaa'
-}
+    padding: '10px',
+    borderBottom: '1px solid #222',
+    display: 'flex',
+    gap: '8px',
+    flexWrap: 'wrap'
+  },
+  usersTitle: {
+    fontSize: '10px',
+    color: '#666',
+    marginRight: '10px'
+  },
+  userBadge: {
+    padding: '3px 8px',
+    fontSize: '11px',
+    color: '#aaa'
+  }
 };
 
 export default App;
