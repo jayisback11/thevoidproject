@@ -15,7 +15,7 @@ if (isLocal) {
     origin = "http://localhost:3000";
     console.log("Running on my machine 💻");
 } else {
-    origin = "https://thevoidproject.vercel.app";
+    origin = process.env.FRONTEND_URL;
     console.log("Running on the live server 🚀");
 }
 
