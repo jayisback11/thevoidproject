@@ -9,6 +9,7 @@ if (isLocal) {
   socket = io("http://localhost:4000");
 } else {
   socket = io(process.env.BACKEND_URL);
+  console.log(process.env.BACKEND_URL)
 }
 
 function App() {
