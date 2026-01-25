@@ -8,7 +8,7 @@ var socket = "";
 if (isLocal) {
   socket = io("http://localhost:4000");
 } else {
-  socket = io("https://thevoidproject.onrender.com");
+  socket = io(process.env.BACKEND_URL);
 }
 
 function App() {
