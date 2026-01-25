@@ -8,8 +8,8 @@ var socket = "";
 if (isLocal) {
   socket = io("http://localhost:4000");
 } else {
-  socket = io(process.env.BACKEND_URL);
-  console.log(process.env.BACKEND_URL)
+  socket = io(process.env.REACT_APP_BACKEND_URL);
+  console.log(process.env.REACT_APP_BACKEND_URL)
 }
 
 function App() {
