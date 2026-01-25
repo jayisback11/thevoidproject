@@ -17,6 +17,7 @@ if (isLocal) {
 } else {
     origin = process.env.FRONTEND_URL;
     console.log("Running on the live server 🚀");
+    console.log("FRONTEND_URL:", process.env.FRONTEND_URL);
 }
 
 const io = new Server(server, {
