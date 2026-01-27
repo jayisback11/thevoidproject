@@ -5,10 +5,13 @@ import "./App.css";
 const isLocal = process.env.NODE_ENV !== "production";
 var socket = "";
 
+console.log("NODE_ENV: " + process.env.NODE_ENV);
+
 if (isLocal) {
   socket = io("http://localhost:4000");
 } else {
-  socket = io("https://thevoidproject.onrender.com");
+  socket = io(process.env.REACT_APP_BACKEND_URL);
+  console.log("TEST:" + process.env.REACT_APP_BACKEND_URL);
 }
 
 function App() {
