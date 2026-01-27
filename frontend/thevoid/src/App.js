@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import io from "socket.io-client";
 import "./App.css";
 
@@ -11,7 +11,7 @@ if (isLocal) {
   socket = io("http://localhost:4000");
 } else {
   socket = io(process.env.REACT_APP_BACKEND_URL);
-  console.log("TEST:" + process.env.REACT_APP_BACKEND_URL)
+  console.log("TEST:" + process.env.REACT_APP_BACKEND_URL);
 }
 
 function App() {
@@ -23,6 +23,9 @@ function App() {
   const [chatLog, setChatLog] = useState([]);
   const [joined, setJoined] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [typingUsers, setTypingUsers] = useState([]);
+  const typingTimeout = useRef(null);
+  const bottomRef = useRef(null);
 
   useEffect(() => {
     // existing code...
@@ -65,6 +68,29 @@ function App() {
     return () => socket.off("receive_message");
   }, []);
 
+  useEffect(() => {
+    socket.on("user_typing", (user) => {
+      if (user === username) return; // ⛔ ignore yourself
+
+      setTypingUsers((prev) => (prev.includes(user) ? prev : [...prev, user]));
+    });
+
+    socket.on("user_stop_typing", (user) => {
+      if (user === username) return;
+
+      setTypingUsers((prev) => prev.filter((u) => u !== user));
+    });
+
+    return () => {
+      socket.off("user_typing");
+      socket.off("user_stop_typing");
+    };
+  }, []);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [chatLog, typingUsers]);
+
   const joinRoom = () => {
     if (username && room) {
       socket.emit("join_room", { username, room });
@@ -86,6 +112,7 @@ function App() {
         }),
       };
       socket.emit("send_message", data);
+      socket.emit("stop_typing", { room, username });
       setChatLog((prev) => [...prev, data]);
       setMessage("");
     }
@@ -197,12 +224,33 @@ function App() {
             <span style={styles.msgTime}>{msg.time}</span>
           </div>
         ))}
+
+        {/* AUTO-SCROLL ANCHOR */}
+        <div ref={bottomRef} />
       </div>
+
+      {/* TYPING INDICATOR */}
+      {typingUsers.length > 0 && (
+        <div style={styles.typingIndicator}>
+          {typingUsers.join(", ")} {typingUsers.length > 1 ? "are" : "is"}{" "}
+          typing…
+        </div>
+      )}
+      {/* INPUT */}
       <form onSubmit={sendMessage} style={styles.inputArea}>
         <input
           style={styles.chatInput}
           value={message}
-          onChange={(e) => setMessage(e.target.value)}
+          onChange={(e) => {
+            setMessage(e.target.value);
+
+            socket.emit("typing", { room, username });
+
+            clearTimeout(typingTimeout.current);
+            typingTimeout.current = setTimeout(() => {
+              socket.emit("stop_typing", { room, username });
+            }, 1200);
+          }}
           placeholder="Type into the void..."
         />
         <button type="submit" style={styles.sendBtn}>
@@ -327,6 +375,12 @@ const styles = {
     padding: "3px 8px",
     fontSize: "21px",
     color: "#aaa",
+  },
+  typingIndicator: {
+    padding: "6px 20px",
+    fontSize: "11px",
+    color: "#666",
+    fontStyle: "italic",
   },
 };
 
